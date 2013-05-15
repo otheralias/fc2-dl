@@ -7,7 +7,7 @@ Usage
 -----
 
 <pre>
-fc2-dl <URL>
+fc2-dl &lt;URL&gt;
 </pre>
 
 Detailed Usage
