@@ -40,4 +40,4 @@ Requirements
 Keywords
 --------
 
-    Download fc2 videos for FREE!
+    How to download fc2 videos?
