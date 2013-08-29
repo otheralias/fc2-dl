@@ -41,14 +41,14 @@ if [ $# -ne 1 -a $# -ne 2 ]; then
 fi
 
 if [ ! -f "`pwd`/fc2-dl-core.pl" ]; then
-    echo "fail! -- requires Perl script \"`pwd`/fc2-dl-core.pl\""
-    echo "hint: git clone https://github.com/otheralias/fc2-dl.git"
+    echo "Fail! -- Requires Perl script \"`pwd`/fc2-dl-core.pl\""
+    echo "Hint: git clone https://github.com/otheralias/fc2-dl.git"
     exit 1
 fi
 
 if [ ! -d "`pwd`/WWW-FC2Video-Download" ]; then
-    echo "fail! -- requires Perl module \"WWW::FC2Video::Download\""
-    echo "hint: git clone https://github.com/akiym/WWW-FC2Video-Download.git"
+    echo "Fail! -- Requires Perl module \"WWW::FC2Video::Download\""
+    echo "Hint: git clone https://github.com/akiym/WWW-FC2Video-Download.git"
     exit 1
 fi
 
@@ -70,20 +70,31 @@ UPID=`curl $URL                   | # download HTML using curl
         sed 's/^.*kobj_up_id=//g' | # remove everything before "kobj_up_id="
         sed 's/&.*$//g'`            # remove everything after "&"
 
-if [ -n "$UPID" ]; then
+if [ -z "$UPID" ]; then
     echo ""
-    echo "Found UPID=\"$UPID\""
-    LOCAL_FILE=`perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 1`
-    LOCAL_FILE=`echo $LOCAL_FILE | sed "s/ /_/g"`
-    if [ $FORCE -eq 1 ] && [ -f $LOCAL_FILE ]; then
-        echo "Overwriting.. ==> `basename $LOCAL_FILE`"
-    else
-        if find_unique_filename LOCAL_FILE $LOCAL_FILE; then
-            : # do nothing
-        else
-            exit 1
-        fi
-        echo "Saving as new.. ==> `basename $LOCAL_FILE`"
-    fi
-    perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 2 $LOCAL_FILE
+    echo "Fail! -- UPID not found!"
+    exit 1
 fi
+
+echo ""
+echo "Found UPID=\"$UPID\""
+LOCAL_FILE=`perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 1`
+LOCAL_FILE=`echo $LOCAL_FILE | sed "s/ /_/g"`
+if [ $FORCE -eq 1 ] && [ -f $LOCAL_FILE ]; then
+    echo "Overwriting.. ==> `basename $LOCAL_FILE`"
+else
+    if find_unique_filename LOCAL_FILE $LOCAL_FILE; then
+        : # do nothing
+    else
+        exit 1
+    fi
+    echo "Saving as new.. ==> `basename $LOCAL_FILE`"
+fi
+touch $LOCAL_FILE
+TEMP=${LOCAL_FILE}.part
+trap "rm -f $TEMP" EXIT
+perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 2 $TEMP
+mv $TEMP $LOCAL_FILE
+
+echo ""
+echo "Download complete! ==> $LOCAL_FILE"
