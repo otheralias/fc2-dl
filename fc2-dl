@@ -34,7 +34,7 @@ find_unique_filename()
     eval "$UNIQUE_FILENAME_VAR=$FILENAME"
 }
 
-if [ $# -ne 1 ]; then
+if [ $# -ne 1 -a $# -ne 2 ]; then
     echo "Fail! -- Expecting 1 or 2 arguments! ==> $@"
     show_help
     exit 1
