@@ -7,18 +7,36 @@ CMD=`basename $0`
 
 show_help()
 {
-    echo "Usage: $CMD <URL>"
+    echo "Usage: $CMD <URL> [FORCE={0/1}]"
+}
+
+find_unique_filename()
+{
+    if [ $# -ne 2 ]; then
+        echo "Fail! -- Expecting 2 arguments! ==> $@"
+        return 1 # non-zero as false
+    fi
+    local UNIQUE_FILENAME_VAR=$1
+    local FILENAME=$2
+    if [ -f $FILENAME ]; then
+        COUNTER=0
+        while [ -f $FILENAME ]; do
+            echo "File exists: `basename $FILENAME`"
+            local NEW_FILENAME=`echo $FILENAME | sed "s#\(.*\)-[0-9]\+\.#\1-$COUNTER\.#g"`
+            if [ "$NEW_FILENAME" == "$FILENAME" ]; then
+                NEW_FILENAME=`echo $FILENAME | sed "s#\(.*\)\.#\1-$COUNTER\.#g"`
+            fi
+            FILENAME=$NEW_FILENAME
+            COUNTER=$(( $COUNTER + 1 ))
+        done
+        echo "Next unique filename: `basename $FILENAME`"
+    fi
+    eval "$UNIQUE_FILENAME_VAR=$FILENAME"
 }
 
 if [ $# -ne 1 ]; then
-    echo "fail! -- expect 1 arguments! ==> $@"
+    echo "Fail! -- Expecting 1 or 2 arguments! ==> $@"
     show_help
-    exit 1
-fi
-
-if [ ! -d "`pwd`/WWW-FC2Video-Download" ]; then
-    echo "fail! -- requires Perl module \"WWW::FC2Video::Download\""
-    echo "hint: git clone https://github.com/akiym/WWW-FC2Video-Download.git"
     exit 1
 fi
 
@@ -28,7 +46,18 @@ if [ ! -f "`pwd`/fc2-dl-core.pl" ]; then
     exit 1
 fi
 
+if [ ! -d "`pwd`/WWW-FC2Video-Download" ]; then
+    echo "fail! -- requires Perl module \"WWW::FC2Video::Download\""
+    echo "hint: git clone https://github.com/akiym/WWW-FC2Video-Download.git"
+    exit 1
+fi
+
 URL=$1
+FORCE=$2
+
+if [ -z "$FORCE" ]; then
+    FORCE=0
+fi
 
 echo ""
 echo "Extracting video UPID from.. ==> $URL"
@@ -44,5 +73,17 @@ UPID=`curl $URL                   | # download HTML using curl
 if [ -n "$UPID" ]; then
     echo ""
     echo "Found UPID=\"$UPID\""
-    perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID"
+    LOCAL_FILE=`perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 1`
+    LOCAL_FILE=`echo $LOCAL_FILE | sed "s/ /_/g"`
+    if [ $FORCE -eq 1 ] && [ -f $LOCAL_FILE ]; then
+        echo "Overwriting.. ==> `basename $LOCAL_FILE`"
+    else
+        if find_unique_filename LOCAL_FILE $LOCAL_FILE; then
+            : # do nothing
+        else
+            exit 1
+        fi
+        echo "Saving as new.. ==> `basename $LOCAL_FILE`"
+    fi
+    perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 2 $LOCAL_FILE
 fi

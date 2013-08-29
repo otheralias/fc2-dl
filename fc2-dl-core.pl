@@ -16,14 +16,26 @@ sub show_help
     print "Usage: $CMD <UPID>\n";
 }
 
-if (scalar(@ARGV) != 1)
+if ((scalar(@ARGV) != 1) && (scalar(@ARGV) != 2) && (scalar(@ARGV) != 3))
 {
-    print "fail! -- expect 1 arguments! ==> @ARGV\n";
+    print "Fail! -- Expecting 1, 2, or 3 arguments! ==> @ARGV\n";
     show_help;
     exit 1;
 }
 
-my $UPID = $ARGV[0];
+my $UPID       = $ARGV[0];
+my $MODE       = $ARGV[1];
+my $LOCAL_FILE = $ARGV[2];
+
+if (scalar(@ARGV) < 2)
+{
+    $MODE = 0;
+}
+
+if (scalar(@ARGV) < 3)
+{
+    $LOCAL_FILE = "";
+}
 
 my $client = WWW::FC2Video::Download->new();
 
@@ -31,8 +43,17 @@ my $EXTRACTED_URL = $client->get_video_url($UPID);
 my $TITLE         = $client->get_title($UPID);
 my $SUFFIX        = $client->get_suffix($UPID);
 
-my $PWD = getcwd();
-my $LOCAL_FILE = "$PWD/${TITLE}.$SUFFIX";
+if ($MODE != 2)
+{
+    my $PWD = getcwd();
+    $LOCAL_FILE = "$PWD/${TITLE}.$SUFFIX";
+}
+
+if ($MODE == 1)
+{
+    print $LOCAL_FILE;
+    exit
+}
 
 print "\nDownloading video from.. ==> $EXTRACTED_URL\n";
 my $fh;
