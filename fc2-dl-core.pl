@@ -13,12 +13,12 @@ my $CMD = basename($0);
 
 sub show_help
 {
-    print "Usage: $CMD <UPID>\n";
+    print "Usage: $CMD <UPID> <MODE={1/2}> [LOCAL_FILE]\n";
 }
 
-if ((scalar(@ARGV) != 1) && (scalar(@ARGV) != 2) && (scalar(@ARGV) != 3))
+if ((scalar(@ARGV) != 2) && (scalar(@ARGV) != 3))
 {
-    print "Fail! -- Expecting 1, 2, or 3 arguments! ==> @ARGV\n";
+    print "Fail! -- Expecting 2 or 3 arguments! ==> @ARGV\n";
     show_help;
     exit 1;
 }
@@ -26,11 +26,6 @@ if ((scalar(@ARGV) != 1) && (scalar(@ARGV) != 2) && (scalar(@ARGV) != 3))
 my $UPID       = $ARGV[0];
 my $MODE       = $ARGV[1];
 my $LOCAL_FILE = $ARGV[2];
-
-if (scalar(@ARGV) < 2)
-{
-    $MODE = 0;
-}
 
 if (scalar(@ARGV) < 3)
 {
