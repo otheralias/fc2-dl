@@ -63,6 +63,12 @@ if [ $# -ne 1 -a $# -ne 2 ]; then
     exit 1
 fi
 
+if [ -z "`which curl`" ]; then
+    echo "Fail! -- Requires \"curl\""
+    echo "Hint: sudo aptitude install curl"
+    exit 1
+fi
+
 if [ ! -f "`pwd`/fc2-dl-core.pl" ]; then
     echo "Fail! -- Requires Perl script \"`pwd`/fc2-dl-core.pl\""
     echo "Hint: git clone https://github.com/otheralias/fc2-dl.git"
