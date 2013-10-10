@@ -100,6 +100,18 @@ UPID=`curl $URL                   | # download HTML using curl
         sed 's/&.*$//g'`            # remove everything after "&"
 
 if [ -z "$UPID" ]; then
+    UPID=`curl $URL                    | # download HTML using curl
+            tr -d '\n'                 | # remove carriage returns
+            sed 's#</#\n</#g'          | # tokenize by HTML tag
+            grep 'kobj_up_id: '        | # locate lines with "kobj_up_id: "
+            tr '\n' @                  | # tokenize by line
+            cut -d@ -f1                | # isolate first instance
+            sed 's/^.*kobj_up_id: //g' | # remove everything before "kobj_up_id: "
+            sed 's/}.*$//g'            | # remove everything after "}"
+            tr -d "\'"`                  # remove single quotes
+fi
+
+if [ -z "$UPID" ]; then
     echo ""
     echo "Fail! -- UPID not found!"
     exit 1
