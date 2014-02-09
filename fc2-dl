@@ -90,25 +90,23 @@ fi
 
 echo ""
 echo "Extracting video UPID from.. ==> $URL"
-UPID=`curl $URL                   | # download HTML using curl
-        tr -d '\n'                | # remove carriage returns
-        sed 's#</#\n</#g'         | # tokenize by HTML tag
-        grep 'kobj_up_id='        | # locate lines with "kobj_up_id="
-        tr '\n' @                 | # tokenize by line
-        cut -d@ -f1               | # isolate first instance
-        sed 's/^.*kobj_up_id=//g' | # remove everything before "kobj_up_id="
-        sed 's/&.*$//g'`            # remove everything after "&"
+UPID=`curl -s $URL                                | # download HTML using curl
+        tr -d '\n'                                | # remove carriage returns
+        sed 's#</#\n</#g'                         | # tokenize by HTML tag
+        grep 'kobj_up_id='                        | # locate lines with "kobj_up_id="
+        tr '\n' @                                 | # tokenize by line
+        cut -d@ -f1                               | # isolate first instance
+        sed 's/^.*kobj_up_id=\([^&]*\)&.*$/\1/g'`   # capture everything between "kobj_up_id=" and "&"
 
 if [ -z "$UPID" ]; then
-    UPID=`curl $URL                    | # download HTML using curl
-            tr -d '\n'                 | # remove carriage returns
-            sed 's#</#\n</#g'          | # tokenize by HTML tag
-            grep 'kobj_up_id: '        | # locate lines with "kobj_up_id: "
-            tr '\n' @                  | # tokenize by line
-            cut -d@ -f1                | # isolate first instance
-            sed 's/^.*kobj_up_id: //g' | # remove everything before "kobj_up_id: "
-            sed 's/}.*$//g'            | # remove everything after "}"
-            tr -d "\'"`                  # remove single quotes
+    UPID=`curl -s $URL                                | # download HTML using curl
+            tr -d '\n'                                | # remove carriage returns
+            sed 's#</#\n</#g'                         | # tokenize by HTML tag
+            grep 'kobj_up_id: '                       | # locate lines with "kobj_up_id: "
+            tr '\n' @                                 | # tokenize by line
+            cut -d@ -f1                               | # isolate first instance
+            sed 's/^.*kobj_up_id: \([^}]*\)}.*$/\1/g' | # capture everything between "kobj_up_id: " and "}"
+            tr -d "\'"`                                 # remove single quotes
 fi
 
 if [ -z "$UPID" ]; then
