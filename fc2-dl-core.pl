@@ -40,14 +40,12 @@ my $SUFFIX        = $client->get_suffix($UPID);
 
 if ($MODE != 2)
 {
-    my $PWD = getcwd();
-    $LOCAL_FILE = "$PWD/${TITLE}.$SUFFIX";
-}
-
-if ($MODE == 1)
-{
-    print $LOCAL_FILE;
-    exit
+    $LOCAL_FILE = "${TITLE}.$SUFFIX";
+    if ($MODE == 1)
+    {
+        print $LOCAL_FILE;
+        exit
+    }
 }
 
 print "\nDownloading video from.. ==> $EXTRACTED_URL\n";

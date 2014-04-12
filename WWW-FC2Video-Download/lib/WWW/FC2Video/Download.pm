@@ -43,7 +43,7 @@ sub prepare_download {
 
     my $data = $self->_ginfo($upid);
     if ($data->{err_code} && $data->{err_code} == 403) {
-        Carp::croak('This video has been disabled');
+        #Carp::croak('This video has been disabled');
     }
     if (not exists $data->{filepath}) {
         Carp::croak('This content has already been deleted or set for private by the submitter');

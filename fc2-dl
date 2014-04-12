@@ -118,7 +118,7 @@ fi
 echo ""
 echo "Found UPID=\"$UPID\""
 LOCAL_FILE=`perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 1`
-LOCAL_FILE=`echo $LOCAL_FILE | sed "s/ /_/g"`
+LOCAL_FILE="`pwd`/`echo $LOCAL_FILE | sed 's/ /_/g' | sed 's#/#-#g' | sed 's/(/_/g' | sed 's/)/_/g'`"
 if [ $FORCE -eq 1 ] && [ -f $LOCAL_FILE ]; then
     echo "Overwriting.. ==> `basename $LOCAL_FILE`"
 else
