@@ -129,8 +129,9 @@ else
     fi
     echo "Saving as new.. ==> `basename $LOCAL_FILE`"
 fi
-touch $LOCAL_FILE
 TEMP=${LOCAL_FILE}.part
+echo -e "#!/bin/bash\n\n$0 $@" > $LOCAL_FILE
+chmod +x $LOCAL_FILE
 trap "cleanup $LOCAL_FILE $TEMP DONE" EXIT
 DONE=0
 perl -I WWW-FC2Video-Download/lib fc2-dl-core.pl "$UPID" 2 $TEMP
